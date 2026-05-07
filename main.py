@@ -1,21 +1,3 @@
-"""
-main.py - Ponto de entrada do simulador de orbitas.
-
-Responsabilidade unica: loop principal (input -> fisica -> render).
-Toda a logica de criacao de planetas vive em scenarios.py;
-a fisica em physics.py; o HUD em hud.py; primitivas em renderer.py.
-
-Controles:
-  - Clique esquerdo : adiciona um planeta orbital no cursor
-  - Espaco          : pausa / continua
-  - + / -           : aumenta / reduz a velocidade do tempo
-  - 1 / 2 / 3       : carrega cenarios pre-definidos
-  - V               : alterna desenho dos vetores de forca
-  - M               : avanca para a proxima missao
-  - R               : reinicia o cenario atual
-  - Q / fechar      : encerra
-"""
-
 import sys
 
 import pygame
@@ -53,7 +35,6 @@ SCENARIO_BUILDERS = {
 
 
 def setup_opengl():
-    """Projecao 2D em coordenadas de pixel; GL_BLEND habilitado uma vez."""
     glMatrixMode(GL_PROJECTION)
     glLoadIdentity()
     glOrtho(0, WIDTH, 0, HEIGHT, -1, 1)
@@ -74,7 +55,6 @@ def main():
     clock = pygame.time.Clock()
     setup_opengl()
 
-    # Estado da sessao
     bodies = scenarios.create_solar_system()
     current_scenario = scenarios.create_solar_system
     paused = False
@@ -84,7 +64,6 @@ def main():
     mission = missions.get(mission_index)
 
     while True:
-        # Delta time real, com cap para evitar saltos em lag spike
         dt = min(clock.tick(FPS) / 1000.0, DT_CAP)
         dt_sim = dt * TIME_SCALES[time_scale_index]
 
@@ -125,7 +104,7 @@ def main():
                     mission.reset()
 
             if event.type == MOUSEBUTTONDOWN and event.button == 1:
-                # Pygame Y cresce para baixo; OpenGL Y cresce para cima.
+                # Pygame Y=0 no topo; OpenGL Y=0 na base
                 mx, my = event.pos
                 scenarios.add_orbital_planet(bodies, mx, HEIGHT - my)
 

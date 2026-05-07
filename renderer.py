@@ -1,18 +1,3 @@
-"""
-renderer.py - Primitivas de desenho OpenGL puras.
-
-Este modulo nao conhece o estado do jogo. So expoe operacoes:
-  - clear_screen
-  - draw_circle
-  - draw_trail
-  - draw_text
-  - draw_arrow         (Feature 4: vetores de forca)
-  - draw_force_vectors (Feature 4)
-  - render             (orquestra um frame de planetas + trilhas)
-
-A camada que conhece o estado do jogo (HUD, controles) fica em hud.py.
-"""
-
 import math
 
 from OpenGL.GL import *
@@ -22,17 +7,10 @@ from config import CIRCLE_SIDES, FORCE_VECTOR_SCALE, FORCE_VECTOR_COLOR
 
 
 def clear_screen():
-    """Limpa o buffer de cor para comecar um novo frame."""
     glClear(GL_COLOR_BUFFER_BIT)
 
 
 def draw_circle(x, y, radius, color, filled=True):
-    """
-    Desenha um circulo aproximado por um poligono de CIRCLE_SIDES lados.
-
-    GL_TRIANGLE_FAN precisa de sides+1 vertices para fechar.
-    GL_LINE_LOOP fecha sozinho -- usamos sides apenas.
-    """
     r, g, b = color
     glColor3f(r, g, b)
 
@@ -54,7 +32,6 @@ def draw_circle(x, y, radius, color, filled=True):
 
 
 def draw_trail(trail, color):
-    """Rastro com transparencia crescente do ponto antigo (a=0) ao recente (a=1)."""
     if len(trail) < 2:
         return
 
@@ -70,7 +47,6 @@ def draw_trail(trail, color):
 
 
 def draw_text(x, y, text, color=(1.0, 1.0, 1.0)):
-    """Texto bitmap GLUT na posicao (x, y) em coordenadas de pixel."""
     r, g, b = color
     glColor3f(r, g, b)
     glRasterPos2f(x, y)
@@ -79,10 +55,6 @@ def draw_text(x, y, text, color=(1.0, 1.0, 1.0)):
 
 
 def draw_arrow(x1, y1, x2, y2, color):
-    """
-    Desenha uma seta de (x1,y1) ate (x2,y2) com pequena ponta triangular.
-    Usado para visualizar vetores de forca/aceleracao (Feature 4).
-    """
     r, g, b = color
     glColor3f(r, g, b)
 
@@ -91,7 +63,6 @@ def draw_arrow(x1, y1, x2, y2, color):
     glVertex2f(x2, y2)
     glEnd()
 
-    # Ponta da seta: dois segmentos formando um "V" para tras
     dx = x2 - x1
     dy = y2 - y1
     length = math.hypot(dx, dy)
@@ -100,7 +71,7 @@ def draw_arrow(x1, y1, x2, y2, color):
     ux, uy = dx / length, dy / length
     head_size = min(8, length * 0.3)
 
-    # Vetores rotacionados 150 e -150 graus em relacao a direcao do vetor
+    # Rotacao de ±150 graus em torno da direcao do vetor para formar a ponta
     cos_a = math.cos(math.radians(150))
     sin_a = math.sin(math.radians(150))
     hx1 = ux * cos_a - uy * sin_a
@@ -117,10 +88,6 @@ def draw_arrow(x1, y1, x2, y2, color):
 
 
 def draw_force_vectors(bodies, accelerations):
-    """
-    Desenha um vetor para cada planeta proporcional a sua aceleracao.
-    A magnitude e ajustada por FORCE_VECTOR_SCALE para ficar visivel.
-    """
     for body, acc in zip(bodies, accelerations):
         if body.pinned:
             continue
@@ -133,10 +100,6 @@ def draw_force_vectors(bodies, accelerations):
 
 
 def render(bodies):
-    """
-    Renderiza o conjunto de planetas: trilhas primeiro, depois os corpos.
-    Nao desenha HUD nem vetores -- main.py decide a ordem dessas camadas.
-    """
     clear_screen()
 
     for body in bodies:
